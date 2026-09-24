@@ -219,3 +219,8 @@ __marimo__/
 
 # Dataset
 dataset/
+# Resultados locales y puntos de guardado (transferir por separado)
+/reports/local/
+/checkpoints/
+/runs/
+*.part
