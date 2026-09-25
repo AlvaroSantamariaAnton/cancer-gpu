@@ -32,7 +32,7 @@ No es detección de cáncer, estimación de supervivencia ni recomendación tera
 | Fase | Resultado esperado | Estado |
 |---|---|---|
 | 0. Preparación técnica | Entorno y datos operativos | Casa verificado; universidad parcialmente verificada |
-| 1. Auditoría y visualización | Entender datos, clases, cohortes y posibles sesgos | Aprobada como fase, no iniciada |
+| 1. Auditoría y visualización | Entender datos, clases, cohortes y posibles sesgos | Terminada; notebook ejecutado y revisado con Álvaro |
 | 2. Protocolo experimental | Reglas de entrenamiento y evaluación acordadas | Aprobada como fase, no iniciada |
 | 3. Arquitectura propia | Diseño de Álvaro, implementación y diagrama | Aprobada como fase, no iniciada |
 | 4. Entrenamiento y comparación | Experimentos trazables, normal frente a ponderada | Aprobada como fase, no iniciada |
@@ -73,9 +73,11 @@ checkpoints se verificará cuando exista código de entrenamiento, no se da por 
   mask_start/end originales. Registrar diferencias de selección respecto de Duke.
 
 **Entregable:** script o cuaderno reproducible, tablas y figuras comentadas.
-Formato a elegir con Álvaro. No publicar imágenes sin revisar atribución/licencia.
-**Cierre:** entender cada entrada y etiqueta, validar particiones y registrar
-anomalías o discrepancias; no eliminar datos automáticamente.
+Formato elegido por Álvaro: notebook de exploración con funciones reutilizables.
+Disponible en notebooks/01_auditoria_datos.ipynb; resultados locales ignorados.
+No publicar imágenes sin revisar atribución/licencia.
+**Cierre completado (2026-09-25):** entradas, etiquetas, particiones y discrepancias
+revisadas con Álvaro; no se eliminaron datos. Notebook ejecutado en VS Code.
 
 ## 2. Acordar el protocolo experimental
 
@@ -235,5 +237,6 @@ las decisiones. La evaluación privada real queda para el acto de defensa.
 Mantener fechas, estado y próximo paso en DECISIONES_Y_ESTADO.md; actualizar este
 plan cuando Álvaro acuerde cambios. AGENTS.md permite que otro chat recupere reglas
 y contexto. Plan aprobado y subida conjunta autorizada por Álvaro el 2026-09-25.
-Consultar Git para comprobar la publicación de esta versión. Próxima fase: auditoría
-y visualización; no iniciada.
+Fase 1 terminada el 2026-09-25. Álvaro autoriza publicar la auditoría y su
+documentación. Consultar Git para comprobar la publicación. Próximo paso acordado:
+fase 2, protocolo experimental, en un nuevo chat; todavía no iniciada.

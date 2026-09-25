@@ -5,12 +5,13 @@ Responsable de arquitectura y decisiones académicas: Álvaro Santamaría Antón
 
 ## Estado actual
 
-Fase actual: PC Casa preparado; continuidad entre chats documentada y hoja de ruta aprobada.
+Fase 1 terminada: auditoría, visualizaciones y revisión con Álvaro completadas.
+Próximo paso acordado: fase 2, protocolo experimental, en un nuevo chat.
 El usuario resolvió el bloqueo de SciPy desactivando Smart App Control.
 Casa actualizado y verificado con PyTorch 2.14.0+cu126; sincronización
 completa de universidad pendiente de su próxima visita.
 Hoja de ruta aprobada por Álvaro el 2026-09-25 en docs/HOJA_DE_RUTA.md.
-Las fases futuras no se han iniciado; las decisiones técnicas abiertas siguen pendientes.
+Las fases 2–8 no se han iniciado; las decisiones técnicas abiertas siguen pendientes.
 No se ha diseñado la CNN, iniciado entrenamiento, elegido app ni preparado diapositivas.
 
 ### Hecho
@@ -30,10 +31,10 @@ No se ha diseñado la CNN, iniciado entrenamiento, elegido app ni preparado diap
 
 ### En curso / pendiente de verificar
 
-- Próximo chat: presentar el alcance de la auditoría y comenzar cuando Álvaro lo indique.
+- Acordar el protocolo experimental (fase 2) con Álvaro; todavía no está definido.
 - En la próxima visita: instalar dependencias comunes en universidad, actualizar
   NumPy de 2.5.2 a 2.5.3 y pasar carga/métricas y diagnóstico GPU.
-- Próxima fase académica: auditoría y visualización de datos, aún no iniciada.
+- Fase 1 cerrada: notebook ejecutado también por Álvaro en VS Code y salidas revisadas.
 - Más adelante: diseño propio, experimentos, evaluación final, app y presentación.
 
 ## Acuerdos y precisiones
@@ -165,3 +166,79 @@ Para retomar: PC Casa preparado, plan aprobado y auditoría todavía no iniciada
 Leer AGENTS.md y los documentos enlazados. El siguiente paso académico es la fase 1,
 auditoría y visualización, que se abordará con Álvaro. No reinstalar el entorno ni
 rediseñar el plan por abrir otro chat. Universidad queda pendiente de su visita.
+
+
+### 2026-09-25 — Fase 1: auditoría y notebook reutilizable
+
+Álvaro autoriza continuar con auditoría/visualización y elige exploración reutilizable
+en notebooks. Se crean notebooks/01_auditoria_datos.ipynb, notebooks/README.md y
+scripts/auditoria_datos.py. Cuaderno sin salidas para Git; copia ejecutada, once
+CSV y tres figuras en reports/local/auditoria/ (ignorado). Sin commit ni push.
+
+Entorno comprobado: Windows, RTX 3060 Ti, Python 3.12.14 de cancer. Git estaba
+limpio en master, coincidente con la referencia local origin/master (sin consultar
+el remoto). Leídos AGENTS, estado, hoja de ruta, entornos, GUIA, enunciado y
+ACLARACION_CORTES original del Escritorio. No se releen los otros PDF originales.
+
+Resultados de controles estructurales: identificadores y pareja paciente/corte
+únicos; samples sin nulos; etiquetas binarias y constantes; coincidencia de ambos
+CSV; cada paciente pertenece a un único split/fold; folds train 0–4 y test -1;
+rutas presentes, únicas y coherentes con fase, paciente y corte. No se repite la
+decodificación previa de 38.109 PNG, cuyo informe local conserva cero errores.
+No se comprueba duplicación por contenido ni identidad entre distintos IDs.
+
+Train: 1.097 pacientes, 10.945 cortes; clases por paciente 775/322, por corte
+7.729/3.216 (pCR=0/1). Cohortes: Duke 165/44, spy1 78/26, spy2 532/252.
+Folds: 2.186, 2.190, 2.192, 2.192, 2.185 cortes; confirma la cifra 2.186 del
+fold 0 frente a 2.187 de la guía. 1.091 pacientes aportan diez cortes, dos cinco,
+tres seis y una siete. Se registran nulos clínicos sin imputar ni excluir.
+
+Visualización: seis ejemplos deterministas (uno por cohorte/clase) y todos los
+cortes de ISPY1_1001; escala común [0,1], resta float32 EARLY-PRE en [-1,1].
+Inspección visual de las tres figuras completada: títulos legibles, fases con
+estructuras correspondientes y realce visible; esto no certifica registro
+anatómico perfecto ni representa toda la cohorte. En los seis ejemplos la media
+EARLY supera PRE; LATE baja frente a EARLY en tres. Son medias de imagen completa,
+no medidas segmentadas del tumor ni una frecuencia poblacional de washout.
+La afirmación del enunciado sobre PRE < EARLY se refiere a 120 pacientes;
+la guía la generaliza. No se adopta como condición píxel a píxel.
+
+Pruebas: las cinco celdas de código se ejecutaron en orden con cancer activado,
+sin errores finales; figuras PNG revisadas. Invocar directamente python.exe sin
+activar Conda produjo un cierre nativo al dibujar (Windows registró 0xc06d007f).
+Se resolvió usando conda run -n cancer, sin instalar ni modificar paquetes,
+controladores o protecciones. No es una reaparición del bloqueo histórico SciPy.
+No se ha verificado interfaz Jupyter ni registrado kernel: seleccionar cancer
+y arrancar el editor desde el entorno activado, según notebooks/README.md.
+
+Próximo paso dentro de fase 1: explorar el cuaderno con Álvaro y comentar clases,
+correlación de cortes, fases y diferencias entre cohortes. Cierre conjunto pendiente;
+fase 2 no iniciada. No se ha entrenado, elegido arquitectura ni usado test para
+análisis de clases/ejemplos o decisiones de modelado.
+
+
+### 2026-09-25 — Cierre de fase 1 y publicación autorizada
+
+Álvaro ejecutó las cinco celdas en VS Code con cancer; se leyeron sus salidas
+persistidas, sin errores, con todos los controles True y tres figuras.
+Se comentaron separación por paciente, desbalance, fases temporales y sesgos
+entre cohortes. Álvaro confirma la comprensión y solicita cerrar la fase,
+actualizar documentación y subir los cambios a GitHub para continuar en otro chat.
+Fase 1 terminada; fase 2 aún no iniciada.
+
+Para VS Code faltaba ipykernel. Álvaro instaló ipykernel 7.3.0 y sus dependencias
+en cancer; se registra la dependencia directa en requirements.txt. Comprobación
+posterior: pip check sin conflictos. Universidad sigue pendiente de sincronizar.
+Se documenta activar Conda y seleccionar cancer antes de ejecutar el notebook.
+
+Las salidas de la ejecución del usuario se conservan en
+reports/local/auditoria/01_auditoria_usuario.ipynb. El notebook a publicar se
+limpia de salidas e imágenes. Dataset y resultados locales permanecen ignorados.
+Esta entrada se incluye en el commit autorizado; verificar el resultado del push
+en Git, no inferirlo de esta frase.
+
+Para el siguiente chat: leer AGENTS.md y el estado vigente. Empezar por acordar
+fase 2: uso de folds, métrica principal, agregación, umbral, presupuesto/criterio
+de revisión tras 5–10 épocas, preprocesado y registro de experimentos. No elegir
+arquitectura por Álvaro ni iniciar entrenamiento. No repetir auditoría ni instalar
+paquetes por rutina. La discrepancia de licencias continúa pendiente.

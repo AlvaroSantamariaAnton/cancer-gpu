@@ -146,3 +146,17 @@ documentan aparte. El entorno de Conda y los binarios CUDA/ROCm nunca se suben.
 - [Versiones oficiales de PyTorch](https://pytorch.org/get-started/previous-versions/).
 - [Gestión de entornos Conda](https://docs.conda.io/projects/conda/en/stable/user-guide/tasks/manage-environments.html).
 - `GPUs, entornos y GitHub.pdf`, material docente aportado por Álvaro.
+
+
+## Notebooks de auditoría
+
+Casa: ipykernel 7.3.0 instalado por Álvaro y ejecución completa en VS Code
+verificada el 2026-09-25; pip check sin conflictos. Dependencia directa fijada
+en requirements.txt; dependencias transitivas de Jupyter no fijadas individualmente.
+Universidad deberá incorporarla al sincronizar las dependencias comunes.
+
+Activa cancer antes de iniciar el editor, abre notebooks/01_auditoria_datos.ipynb,
+selecciona cancer (Python 3.12.14) como kernel y pulsa Ejecutar todo.
+No ejecutes scripts/auditoria_datos.py por separado. Invocar python.exe por su
+ruta sin activar Conda provocó cierres nativos al generar figuras; con el entorno
+activado (o conda run -n cancer) la ejecución terminó correctamente.

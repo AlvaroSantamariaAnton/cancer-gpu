@@ -36,3 +36,6 @@ networkx==3.6.1
 setuptools==84.0.0
 sympy==1.14.0
 typing-extensions==4.16.0
+
+# Kernel para ejecutar notebooks en VS Code/Jupyter.
+ipykernel==7.3.0
