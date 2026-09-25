@@ -1,4 +1,4 @@
-# Propuesta pendiente de comprobar en la RX 6700 XT del laboratorio.
---index-url https://download.pytorch.org/whl/rocm7.1
-torch==2.13.0
-torchvision==0.28.0
+# Versiones confirmadas por Alvaro mediante prueba GPU en Ubuntu.
+--index-url https://download.pytorch.org/whl/rocm7.14
+torch==2.14.0
+torchvision==0.29.0

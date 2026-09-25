@@ -1,12 +1,18 @@
-# Bloqueo pendiente de Windows: SciPy
+# Historial del bloqueo de Windows: SciPy
 
-## Resultado
+## Estado actualizado — 2026-09-25
 
-La preparación de PC Casa no está terminada. El dataset está completo y verificado,
-Python 3.12.14 y PyTorch 2.13.0+cu126 están instalados, y la RTX 3060 Ti ejecuta
-convoluciones y gradientes correctamente. La carga de imágenes también pasa.
-Sin embargo, scikit-learn no puede importarse porque Windows rechaza una extensión
-de SciPy. No se ha desactivado ni modificado ninguna protección.
+Álvaro desactivó personalmente Control inteligente de aplicaciones de Windows y
+compartió una ejecución completa correcta de `scripts/comprobar_carga.py`,
+incluidas agregación y AUC sintéticas. El bloqueo queda resuelto en esa configuración.
+El agente no cambió protecciones. Desactivar Smart App Control es un cambio global
+del equipo, no un requisito automático de instalación del proyecto.
+
+Los eventos aportados 3033 y 3077 identificaron
+`scipy/optimize/_group_columns.cp312-win_amd64.pyd` y la política
+`VerifiedAndReputableDesktop` ({0283ac0f-fff1-49ae-ada1-8a933130cad6}).
+
+Lo que sigue documenta el diagnóstico previo, no el estado actual.
 
 ## Evidencia y alternativas probadas
 
@@ -44,7 +50,7 @@ No certifican el cálculo de métricas. `utils_caso.evaluar_por_paciente` captur
 excepciones de scikit-learn y podría devolver AUC NaN; no interpretar eso como
 un resultado del modelo ni continuar el experimento ignorándolo.
 
-## Siguiente paso
+## Pasos propuestos durante el diagnóstico (histórico)
 
 Lectura de configuración realizada: `VerifiedAndReputablePolicyState = 1`,
 compatible con Control inteligente de aplicaciones activo. Microsoft explica que

@@ -5,10 +5,12 @@ Responsable de arquitectura y decisiones académicas: Álvaro Santamaría Antón
 
 ## Estado actual
 
-Fase actual: preparar dataset y entorno del PC Casa, y documentar portabilidad.
-**Bloqueo actual:** Windows impide importar una extensión de SciPy; la preparación
-de casa está incompleta aunque la GPU y el cargador de imágenes funcionan.
-La hoja de ruta detallada se acordará después, por petición de Álvaro.
+Fase actual: PC Casa preparado; continuidad entre chats documentada y hoja de ruta aprobada.
+El usuario resolvió el bloqueo de SciPy desactivando Smart App Control.
+Casa actualizado y verificado con PyTorch 2.14.0+cu126; sincronización
+completa de universidad pendiente de su próxima visita.
+Hoja de ruta aprobada por Álvaro el 2026-09-25 en docs/HOJA_DE_RUTA.md.
+Las fases futuras no se han iniciado; las decisiones técnicas abiertas siguen pendientes.
 No se ha diseñado la CNN, iniciado entrenamiento, elegido app ni preparado diapositivas.
 
 ### Hecho
@@ -21,19 +23,17 @@ No se ha diseñado la CNN, iniciado entrenamiento, elegido app ni preparado diap
   Decodificados y comprobados: PNG en escala de grises, 256 × 256, cero fallos.
 - Añadidas recetas de entorno y herramientas de diagnóstico y sincronización.
 - Miniconda instalado; `cancer` usa Python 3.12.14.
-- PyTorch 2.13.0+cu126 y torchvision 0.28.0+cu126 instalados.
+- Instalación inicial: PyTorch 2.13.0+cu126 y torchvision 0.28.0+cu126.
 - Prueba real de convolución y gradientes en la RTX 3060 Ti: OK.
 - Verificada la resolución de las dependencias Python compartidas para Linux/Python 3.12.
 - Probada la carga real PRE/EARLY/LATE con `utils_caso` y DataLoader: OK.
 
 ### En curso / pendiente de verificar
 
-- Resolver el bloqueo de Control de aplicaciones y repetir la prueba completa
-  de métricas. La alternativa conda-forge también fue bloqueada; detalle en
-  [BLOQUEO_WINDOWS.md](BLOQUEO_WINDOWS.md).
-- Recoger versión real de Python, torch, torchvision, HIP y prueba GPU en universidad.
-- Validar versiones comunes en los dos equipos antes del primer entrenamiento.
-- Una vez preparado el entorno: acordar hoja de ruta y auditoría/visualización.
+- Próximo chat: presentar el alcance de la auditoría y comenzar cuando Álvaro lo indique.
+- En la próxima visita: instalar dependencias comunes en universidad, actualizar
+  NumPy de 2.5.2 a 2.5.3 y pasar carga/métricas y diagnóstico GPU.
+- Próxima fase académica: auditoría y visualización de datos, aún no iniciada.
 - Más adelante: diseño propio, experimentos, evaluación final, app y presentación.
 
 ## Acuerdos y precisiones
@@ -51,7 +51,7 @@ No se ha diseñado la CNN, iniciado entrenamiento, elegido app ni preparado diap
 | D09 | Modelo visible desde GitHub | Más adelante incluir código de arquitectura, diagrama legible y pesos/configuración del modelo final. Elegir almacenamiento según tamaño. |
 | D10 | Separar siempre por paciente | Mantener train/test oficiales; validación interna por folds de train. Test una vez cerrado el modelo. |
 | D11 | Comparar BCE normal y ponderada | Obligatorio; evaluar por paciente y justificar agregación/umbral con validación interna. |
-| D12 | Aclarar incertidumbres, no inventar resultados | Índice ROCm y versión universitaria no confirmados; no dar por validada la portabilidad AMD. |
+| D12 | Aclarar incertidumbres, no inventar resultados | ROCm 7.14 y versiones universitarias confirmados por salida del usuario; falta validación completa de datos y entrenamiento entre equipos. |
 
 ## Diferencias entre fuentes que hay que recordar
 
@@ -94,3 +94,74 @@ Próximo paso inmediato: revisar con Álvaro el bloqueo de Windows y una soluci�
 compatible con su política de seguridad; repetir métricas y sincronización completa.
 Pendiente obligatorio en el laboratorio:
 ejecutar diagnóstico antes de cambiar paquetes y compartir su resultado.
+
+### 2026-09-25 — Versiones comunes acordadas
+
+Álvaro autorizó actualizar casa a torch 2.14.0+cu126 y torchvision 0.29.0+cu126,
+mantener Python 3.12.14, NumPy 2.5.3 y las bibliotecas comunes actuales, y corregir
+el perfil universidad a torch 2.14.0+rocm7.14 / torchvision 0.29.0+rocm7.14.
+La simulación pip no detectó conflictos. Instalación completada.
+Verificación: sincronizar_entorno.py --equipo casa y comprobar_carga.py
+terminaron con código 0. pip check, importaciones comunes, convolución y backward
+en NVIDIA, carga PRE/EARLY/LATE, partición por paciente y AUC sintética: OK.
+Informe local ignorado por Git: reports/local/entorno-casa.json.
+
+Evidencia universitaria aportada por el usuario: Ubuntu 26.04.1 LTS,
+Python 3.12.14, HIP 7.14.60850, ROCm SDK 7.14.1, RX 6700 XT;
+convolución y gradientes OK con HSA_OVERRIDE_GFX_VERSION=10.3.0.
+Se conservan los avisos MIOpen y xnack como limitación de esa prueba pequeña.
+Las bibliotecas adicionales no estaban instaladas porque aún no se necesitaban.
+
+Miniconda permanece en D:/proyectos/_herramientas/miniconda3 por decisión de Álvaro.
+Activación normal de Conda en PowerShell confirmada por el usuario.
+SciPy: usuario desactivó Smart App Control y pasó carga/métricas completas.
+
+Los cambios de esta sesión quedan locales. No se hace commit ni push sin avisar
+y acordarlo con Álvaro. La arquitectura y las decisiones se trabajan con él;
+no se adelanta diseño de CNN ni hoja de ruta académica.
+
+### 2026-09-25 — Continuidad entre chats
+
+Álvaro pide conservar también la hoja de ruta en GitHub y permitir retomar el
+proyecto desde otro chat sin repetir todo el contexto. Se crean AGENTS.md en la
+raíz y docs/HOJA_DE_RUTA.md, enlazados desde README.md. AGENTS.md dirige al estado,
+reglas de colaboración, entornos y requisitos. La hoja de ruta se deja explícitamente
+pendiente de elaborar y acordar; no se han iniciado fases académicas nuevas.
+Los originales externos no se han copiado ni se presupone que otro chat los tenga.
+
+Estado de publicación: estos archivos y las correcciones de entorno de la sesión
+anterior siguen locales, pendientes de revisar y acordar commit/push con Álvaro.
+Próximo paso: acordar la hoja de ruta con los documentos docentes.
+
+### 2026-09-25 — Borrador de hoja de ruta
+
+A petición de Álvaro se revisaron la guía, aclaración de cortes y los cuatro PDF
+originales para rellenar docs/HOJA_DE_RUTA.md. Se distinguen requisitos docentes,
+decisiones previas y propuestas pendientes; se incluyen criterios de cierre,
+comparación de pérdidas, evaluación final, app, informe y cinco diapositivas al final.
+Se detectó discrepancia de recuentos por fold entre guía y presentación (fold 0:
+2.187 frente a 2.186 cortes); se contrastará con los CSV en la auditoría.
+No se han elegido arquitectura, hiperparámetros ni tecnología de app.
+Próximo paso: revisar el borrador con Álvaro, acordar ajustes y solo después
+revisar la subida conjunta de documentación y configuración. Sin commit ni push.
+
+### 2026-09-25 — Aprobación de la hoja de ruta
+
+Álvaro confirma que le parece bien la hoja de ruta. Quedan aprobados su orden,
+alcance y criterios de cierre. Arquitectura, hiperparámetros, protocolo concreto,
+checkpoints y tecnología de app siguen pendientes de decidir en sus fases.
+Se actualizan el estado del plan y el enlace del README.
+Próximo paso de publicación: revisar y acordar commit/push de configuración,
+AGENTS.md, hoja de ruta y documentación. Próxima fase académica: auditoría.
+No se ha iniciado la auditoría ni realizado commit o push.
+
+### 2026-09-25 — Subida autorizada y relevo de chat
+
+Álvaro autoriza commit y push conjuntos de los ocho archivos de configuración y
+documentación modificados o creados. Esta entrada forma parte de ese commit;
+comprobar el estado real de publicación con Git, no inferirlo de este registro.
+
+Para retomar: PC Casa preparado, plan aprobado y auditoría todavía no iniciada.
+Leer AGENTS.md y los documentos enlazados. El siguiente paso académico es la fase 1,
+auditoría y visualización, que se abordará con Álvaro. No reinstalar el entorno ni
+rediseñar el plan por abrir otro chat. Universidad queda pendiente de su visita.

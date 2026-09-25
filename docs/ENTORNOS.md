@@ -2,10 +2,11 @@
 
 ## Objetivo y límites
 
-**Estado actual:** GPU y lectura de datos operativas en casa; cálculo de métricas
-bloqueado por Windows. Véase [BLOQUEO_WINDOWS.md](BLOQUEO_WINDOWS.md).
-La sincronización comprueba las importaciones y falla si persiste ese bloqueo;
-no es suficiente que `pip check` termine bien.
+**Estado actual (2026-09-25):** bloqueo de SciPy resuelto por el usuario al
+desactivar Smart App Control; prueba completa de carga y métricas superada.
+Casa actualizado a PyTorch 2.14.0+cu126: dependencias, importaciones, GPU, carga
+y métricas sintéticas verificadas. La AMD ha pasado la prueba
+de convolución y gradientes; faltan dependencias comunes y carga de datos en universidad.
 
 Compartir código, versiones de bibliotecas, configuraciones y decisiones por Git.
 Cada equipo necesita su propia instalación del entorno `cancer`: una carpeta
@@ -17,24 +18,23 @@ Conda de Windows no sirve en Ubuntu. El Python global no determina el del entorn
 | Universidad | Ubuntu | AMD Radeon RX 6700 XT | 12 GB | ROCm/HIP |
 
 `environment.yml` fija Python 3.12.14, NumPy 2.5.3 y SciPy 1.18.1.
-NumPy y SciPy se instalan con Conda: la distribución pip de SciPy provocó un
-bloqueo de Control de aplicaciones en este PC; no se cambian políticas de Windows.
-La alternativa conda-forge también resultó bloqueada en otra extensión: **no se
-considera resuelto**. Estas versiones quedan documentadas para reproducir el estado,
-no certificadas como una instalación completa de Windows.
-`requirements.txt` fija las bibliotecas
-compartidas. Los archivos `requirements/torch-*.txt` fijan la misma versión pública
-de torch/torchvision con binarios distintos para cada GPU.
+NumPy y SciPy se mantienen en Conda. Cambiar de pip a conda-forge no resolvió
+el bloqueo de Windows; véase el historial en [BLOQUEO_WINDOWS.md](BLOQUEO_WINDOWS.md).
+`requirements.txt` fija las dependencias comunes y los perfiles GPU fijan:
 
-La propuesta inicial es torch 2.13.0 y torchvision 0.28.0, con CUDA 12.6 en casa
-y ROCm 7.1 en universidad. **No se ha comprobado aún que coincida con la
-instalación universitaria ni que esa combinación ejecute kernels en la RX 6700 XT.**
-La versión final común debe confirmarse a partir de ambos diagnósticos; si hay que
-cambiarla, se actualizan los dos perfiles y se repiten las pruebas.
+| Componente | Casa | Universidad |
+|---|---|---|
+| Python | 3.12.14 | 3.12.14 |
+| torch | 2.14.0+cu126 | 2.14.0+rocm7.14 |
+| torchvision | 0.29.0+cu126 | 0.29.0+rocm7.14 |
+| NumPy objetivo | 2.5.3 | 2.5.3 (instalado actualmente: 2.5.2) |
 
-El índice comunicado `rocm7.14` queda pendiente de aclarar: la documentación
-oficial consultada publica `rocm7.1`, no permite deducir qué se instaló allí.
-No sustituir el entorno universitario que funcione sin guardar primero su estado.
+El usuario confirmó Ubuntu 26.04.1, HIP 7.14.60850 y paquetes ROCm SDK 7.14.1.
+La RX 6700 XT pasó convolución y gradientes con
+`HSA_OVERRIDE_GFX_VERSION=10.3.0`. Se conserva ese ajuste existente, sin afirmar
+que sea imprescindible. MIOpen avisó de una base de datos ilegible y biblioteca CK
+no encontrada para gfx1030; también apareció un aviso xnack. La prueba pasó,
+pero no certifica rendimiento ni estabilidad de entrenamientos completos.
 
 ## Primera instalación
 
@@ -55,14 +55,11 @@ conda create -n cancer --override-channels -c conda-forge python=3.12.14 pip num
 ```
 
 En este PC, Miniconda está instalado en `D:\proyectos\_herramientas\miniconda3`.
-Desde PowerShell, situado en el repositorio, se puede activar sin modificar el
-perfil global de la terminal:
+PowerShell ya está inicializado para Conda en casa. En una terminal nueva:
 
 ```powershell
-. .\scripts\activar_casa.ps1
+conda activate cancer
 ```
-
-También se puede abrir Miniconda Prompt y ejecutar `conda activate cancer`.
 
 En casa:
 
@@ -78,28 +75,30 @@ python scripts/diagnostico_entorno.py --equipo universidad --probar-gpu
 python -m pip freeze
 ```
 
-El primer comando guarda `reports/local/entorno-universidad.json`. Compartir el
-informe para cerrar la combinación de versiones. Instalar un paquete ROCm no
-demuestra que la GPU funcione: la prueba incluye convolución y cálculo de gradientes.
-No instalar controladores ni ROCm a nivel de sistema en el PC universitario.
+El diagnóstico guarda `reports/local/entorno-universidad.json`. La prueba manual
+compartida por Álvaro ya confirmó las versiones y la operación GPU.
+No instalar controladores ni ROCm de sistema ni sustituir el PyTorch funcional.
+El diagnóstico registra `HSA_OVERRIDE_GFX_VERSION`; comprobar que sigue siendo 10.3.0.
 
-El material docente menciona `HSA_OVERRIDE_GFX_VERSION=10.3.0` para esa GPU.
-No lo aplicamos automáticamente ni lo consideramos garantía de compatibilidad.
-Debe contrastarse con el entorno preparado por el laboratorio. El diagnóstico
-registra si esa variable ya está definida.
-
-Una vez verificado el perfil AMD:
+Cuando Álvaro vuelva a universidad, tras revisar los cambios y actualizar el repo:
 
 ```text
-python scripts/sincronizar_entorno.py --equipo universidad --instalar-torch
+conda activate cancer
+conda env update -f environment.yml
+python scripts/sincronizar_entorno.py --equipo universidad
+python scripts/comprobar_carga.py
 ```
+
+Esto instala las dependencias comunes pendientes y actualiza NumPy a 2.5.3.
+No usar `--instalar-torch` en ese equipo: sus versiones ya coinciden.
+La instalación y validación completa allí siguen pendientes.
 
 ## Al cambiar de ordenador
 
 Antes de salir:
 
 1. Actualizar `docs/DECISIONES_Y_ESTADO.md` con lo hecho y el siguiente paso.
-2. Guardar cambios de código/configuración con commit y push.
+2. Revisar con Álvaro los cambios de código/configuración antes de commit y push.
 3. Si hay entrenamiento, guardar y transferir su checkpoint por separado.
 
 Al llegar, desde el repositorio:

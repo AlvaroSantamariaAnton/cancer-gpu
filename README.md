@@ -3,11 +3,13 @@
 Trabajo individual BreastDCEDL: predicción educativa de pCR con una CNN 2D propia.
 La arquitectura la diseña Álvaro; todavía no hay modelo entrenado.
 
-**Preparación todavía incompleta:** dataset, lectura de imágenes y GPU comprobados
-en casa; Windows bloquea una extensión de SciPy necesaria para scikit-learn.
-Consulta [el bloqueo pendiente](docs/BLOQUEO_WINDOWS.md). AMD aún requiere una
-prueba en el laboratorio. No dar ambos equipos por listos hasta cerrar esas pruebas.
+PC Casa preparado: PyTorch 2.14.0+cu126, GPU, carga y métricas sintéticas
+verificados. El bloqueo de SciPy está resuelto por el usuario. La AMD ha pasado convolución y gradientes con
+ROCm 7.14. Quedan pendientes las dependencias comunes y la prueba completa de
+carga en universidad. Consulta [el estado](docs/DECISIONES_Y_ESTADO.md).
 
+- [Instrucciones para retomar el proyecto en otro chat](AGENTS.md)
+- [Hoja de ruta aprobada](docs/HOJA_DE_RUTA.md)
 - [Decisiones y estado del trabajo](docs/DECISIONES_Y_ESTADO.md)
 - [Trabajar desde casa y universidad](docs/ENTORNOS.md)
 - [Guía docente original](GUIA.md)
@@ -39,7 +41,7 @@ conda activate cancer
 python scripts/diagnostico_entorno.py --equipo universidad --probar-gpu
 ```
 
-El perfil AMD es una propuesta pendiente de validar en el laboratorio. Revisa
+El perfil AMD recoge las versiones que ya funcionan en universidad. Revisa
 [ENTORNOS.md](docs/ENTORNOS.md) antes de sustituir el PyTorch que ya tienes allí.
 
 ## Verificar los datos
