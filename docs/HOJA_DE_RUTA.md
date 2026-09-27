@@ -33,7 +33,7 @@ No es detección de cáncer, estimación de supervivencia ni recomendación tera
 |---|---|---|
 | 0. Preparación técnica | Entorno y datos operativos | Casa verificado; universidad parcialmente verificada |
 | 1. Auditoría y visualización | Entender datos, clases, cohortes y posibles sesgos | Terminada; notebook ejecutado y revisado con Álvaro |
-| 2. Protocolo experimental | Reglas de entrenamiento y evaluación acordadas | Aprobada como fase, no iniciada |
+| 2. Protocolo experimental | Reglas de entrenamiento y evaluación acordadas | Completada; protocolo acordado, sin entrenamiento |
 | 3. Arquitectura propia | Diseño de Álvaro, implementación y diagrama | Aprobada como fase, no iniciada |
 | 4. Entrenamiento y comparación | Experimentos trazables, normal frente a ponderada | Aprobada como fase, no iniciada |
 | 5. Cierre del modelo y test | Modelo fijado y evaluación final por paciente | Aprobada como fase, no iniciada |
@@ -81,6 +81,44 @@ revisadas con Álvaro; no se eliminaron datos. Notebook ejecutado en VS Code.
 
 ## 2. Acordar el protocolo experimental
 
+**Acuerdos de fase 2 (2026-09-27):** desarrollo con fold 0 para validación,
+confirmación de finalistas en cinco folds desde cero; ROC-AUC por paciente como
+métrica principal; media de probabilidades de cortes; umbral inicial 0,50 en
+ambas pérdidas; revisión en épocas 5 y 10 sin descarte automático. Entrada
+PRE/EARLY/LATE de 256 × 256, escalada a [0,1] dividiendo entre 255, sin aumentos
+en la primera comparación; aumentos posteriores pendientes de acuerdo.
+Comparación de pérdidas con el mismo inicio y condiciones, cambiando solo la
+pérdida; pos_weight calculado por cortes del entrenamiento de cada fold.
+Máximo de 50 épocas, paciencia de 10 sin superar la mejor AUC de validación por
+paciente, aplicando parada desde época 10; conservar mejor época y anterior en
+empates. Revisar una arquitectura y detener una ejecución son decisiones distintas.
+Los puntos siguientes describen el alcance de la fase, concretado en el protocolo.
+Véanse D02 y D13–D25 en DECISIONES_Y_ESTADO.md.
+Semilla inicial 42; último estado reanudable guardado al terminar cada época y
+mejor versión conservada aparte, con configuración, resultados y equipo.
+Checkpoints fuera de Git; transferencia por pendrive, verificando copias, sin
+garantía de identidad numérica entre GPUs. Parada solicitada al final de época;
+implementación y pruebas pendientes de las fases de código.
+Umbral ajustado: maximizar (sensibilidad + especificidad) / 2 por paciente con
+validación interna, conservando resultados a 0,50 y fijándolo antes de test.
+Reunir predicciones de validación de los cinco folds; desempatar por cercanía
+a 0,50 y después mayor umbral. No se ha calculado un valor.
+Calibración: gráfica y puntuación Brier por paciente, inicialmente sin corregir
+probabilidades. Brier describe error probabilístico, no solo calibración.
+Gráfica con cinco intervalos de probabilidad y recuentos por intervalo.
+Incertidumbre: intervalos del 95 % con 2.000 remuestreos con reemplazo por
+paciente, sobre predicciones fijas y sin reentrenamiento; no por cortes.
+Modelo y umbral fijos; percentiles 2,5 y 97,5, repitiendo remuestras sin ambas clases.
+No incluyen toda la variabilidad del entrenamiento ni son probabilidades individuales.
+Selección de finalistas: mayor AUC media de los cinco folds, mostrando resultados
+individuales; empate exacto favorece menos parámetros y, con igual arquitectura,
+BCE normal. Pequeñas diferencias no demuestran superioridad concluyente.
+Modelo final: reentrenar desde cero con todo train durante la mediana de las
+mejores épocas de los cinco folds del candidato ganador, sin parada por validación.
+Umbral obtenido de validación de esos folds y fijado antes de test; documentar
+la limitación de trasladarlo al modelo reentrenado. Si procede, recalcular
+pos_weight con todo train.
+
 - Usar la partición interna por paciente de train. Decidir si desarrollar con un
   fold y confirmar finalistas en los cinco, o emplear otro alcance justificado.
   Los cinco folds completos son una opción, no una obligación inventada.
@@ -101,8 +139,10 @@ revisadas con Álvaro; no se eliminaron datos. Notebook ejecutado en VS Code.
   si existe, época, configuración, código, semillas y estado de precisión mixta
   si se usa. Elegir transferencia/almacenamiento antes de depender de ella.
 
-**Entregable:** protocolo fechado con decisiones y motivos.
-**Cierre:** reglas de selección y parada definidas antes de comparar candidatos.
+**Entregable:** [protocolo fechado](PROTOCOLO_EXPERIMENTAL.md) con decisiones
+acordadas mediante revisión sucesiva con Álvaro.
+**Cierre completado (2026-09-27):** reglas de selección, parada, evaluación y
+transporte definidas antes de comparar candidatos. Publicación autorizada por Álvaro.
 
 ## 3. Diseñar e implementar la CNN con Álvaro
 
@@ -228,9 +268,10 @@ las decisiones. La evaluación privada real queda para el acto de defensa.
   aclarar alcance antes de redistribuir material, sin sobrescribir licencias.
 - Imágenes «aleatorias» significa casos externos compatibles con tres fases,
   formato y preprocesado. No garantiza generalización a cualquier imagen médica.
-- Pendientes de acordar: folds/presupuesto, criterio de mejora y descarte,
-  arquitectura, hiperparámetros, agregación/umbral, tratamiento de calibración e
-  incertidumbre, almacenamiento de checkpoints/pesos y tecnología de app.
+- Protocolo experimental acordado en fase 2. Pendientes de fases posteriores:
+  arquitectura e hiperparámetros concretos, implementación y pruebas del protocolo,
+  publicación de pesos finales y tecnología de app. El valor del umbral se
+  obtendrá de validación con el criterio ya fijado.
 
 ## Continuidad y publicación
 
@@ -239,4 +280,6 @@ plan cuando Álvaro acuerde cambios. AGENTS.md permite que otro chat recupere re
 y contexto. Plan aprobado y subida conjunta autorizada por Álvaro el 2026-09-25.
 Fase 1 terminada el 2026-09-25. Álvaro autoriza publicar la auditoría y su
 documentación. Consultar Git para comprobar la publicación. Próximo paso acordado:
-fase 2, protocolo experimental, en un nuevo chat; todavía no iniciada.
+fase 2 completada el 2026-09-27 mediante acuerdos en el nuevo chat. Documentación
+con commit y push autorizados por Álvaro; comprobar publicación mediante Git.
+Próximo paso: fase 3, arquitectura propia, en un nuevo chat que abrirá Álvaro.

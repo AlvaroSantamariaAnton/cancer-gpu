@@ -6,12 +6,16 @@ Responsable de arquitectura y decisiones académicas: Álvaro Santamaría Antón
 ## Estado actual
 
 Fase 1 terminada: auditoría, visualizaciones y revisión con Álvaro completadas.
-Próximo paso acordado: fase 2, protocolo experimental, en un nuevo chat.
+Fase 1 publicada, según confirmación de Álvaro al iniciar esta sesión.
+Fase 2 completada: protocolo experimental acordado, sin entrenamiento.
+Documento consolidado: docs/PROTOCOLO_EXPERIMENTAL.md. Commit y push autorizados
+por Álvaro para cerrar la fase; verificar publicación mediante Git.
+Próximo paso: fase 3, diseño de la arquitectura propia con Álvaro en un nuevo chat.
 El usuario resolvió el bloqueo de SciPy desactivando Smart App Control.
 Casa actualizado y verificado con PyTorch 2.14.0+cu126; sincronización
 completa de universidad pendiente de su próxima visita.
 Hoja de ruta aprobada por Álvaro el 2026-09-25 en docs/HOJA_DE_RUTA.md.
-Las fases 2–8 no se han iniciado; las decisiones técnicas abiertas siguen pendientes.
+Las fases 3–8 no se han iniciado; las decisiones técnicas abiertas siguen pendientes.
 No se ha diseñado la CNN, iniciado entrenamiento, elegido app ni preparado diapositivas.
 
 ### Hecho
@@ -31,7 +35,8 @@ No se ha diseñado la CNN, iniciado entrenamiento, elegido app ni preparado diap
 
 ### En curso / pendiente de verificar
 
-- Acordar el protocolo experimental (fase 2) con Álvaro; todavía no está definido.
+- Fase 2 completada mediante acuerdos sucesivos con Álvaro. Publicación autorizada;
+  implementación y pruebas de checkpoints pendientes de las fases de código.
 - En la próxima visita: instalar dependencias comunes en universidad, actualizar
   NumPy de 2.5.2 a 2.5.3 y pasar carga/métricas y diagnóstico GPU.
 - Fase 1 cerrada: notebook ejecutado también por Álvaro en VS Code y salidas revisadas.
@@ -42,7 +47,7 @@ No se ha diseñado la CNN, iniciado entrenamiento, elegido app ni preparado diap
 | ID | Decisión o criterio | Motivo / estado |
 |---|---|---|
 | D01 | CNN 2D propia, desde cero, en PyTorch | Obligatorio según enunciado. Álvaro diseña la arquitectura; la asistencia explica y dibuja su diseño. Sin modelos de catálogo ni pesos preentrenados. |
-| D02 | Revisar aprendizaje tras 5–10 épocas | Propuesta de Álvaro. Antes de descartar, comprobar datos, gradientes, pérdida y validación. Métrica, paciencia y criterio exactos todavía por acordar. No se afirma que toda arquitectura deba mejorar en ese plazo. |
+| D02 | Revisar aprendizaje en épocas 5 y 10, sin descarte automático de la arquitectura | Acordado el 2026-09-27. Revisar pérdida, ROC-AUC por paciente y errores; comprobar datos, gradientes, código y tasa de aprendizaje antes de atribuir falta de mejora a la arquitectura. Presupuesto y parada del entrenamiento acordados en D19. |
 | D03 | Decisiones y estado en este documento | Registrar fecha, motivo, evidencia, resultado y próximo paso tras cada sesión. |
 | D04 | Un entorno cancer por equipo, Python 3.12.14 | Verificado en casa. El Python global no se modifica. Mismas versiones públicas compartidas, binarios GPU distintos. |
 | D05 | Dataset local excluido de Git | Archivos pesados, ya ignorados. Raíz actual del repo equivale a breastdcedl/. |
@@ -53,6 +58,19 @@ No se ha diseñado la CNN, iniciado entrenamiento, elegido app ni preparado diap
 | D10 | Separar siempre por paciente | Mantener train/test oficiales; validación interna por folds de train. Test una vez cerrado el modelo. |
 | D11 | Comparar BCE normal y ponderada | Obligatorio; evaluar por paciente y justificar agregación/umbral con validación interna. |
 | D12 | Aclarar incertidumbres, no inventar resultados | ROCm 7.14 y versiones universitarias confirmados por salida del usuario; falta validación completa de datos y entrenamiento entre equipos. |
+| D13 | Desarrollar con fold 0 como validación y folds 1–4 para entrenamiento; confirmar finalistas en cinco folds | Aceptado por Álvaro en este chat. Cada rotación se entrena desde cero. Es validación para selección; test sigue reservado. |
+| D14 | ROC-AUC por paciente como métrica principal | Aceptado por Álvaro; acompañada de sensibilidad, especificidad, accuracy y matriz de confusión. |
+| D15 | Media de probabilidades de todos los cortes disponibles de cada paciente | Aceptado por Álvaro; cada paciente aporta una predicción a la evaluación. |
+| D16 | Umbral inicial 0,50 para BCE normal y ponderada; umbral ajustado por balanced accuracy | Aprobado el 2026-09-27: pCR si puntuación >= umbral. Elegir el umbral que maximice (sensibilidad + especificidad) / 2 por paciente usando solo validación interna. Conservar también resultados con 0,50. Fijar el umbral antes de evaluar test. Dar igual importancia a ambas clases es un criterio académico, no una equivalencia de daños clínicos ni una exigencia de métricas iguales. Reunir predicciones de validación de los cinco folds, una por paciente procedente del modelo que no entrenó con ella. En empate de criterio, elegir el umbral más cercano a 0,50 y, si persiste, el mayor. Valor numérico pendiente de los experimentos. |
+| D17 | Entrada PRE/EARLY/LATE, 256 × 256, valores float32 en [0,1] al dividir PNG entre 255; sin aumentos en la primera comparación | Aprobado el 2026-09-27. Conservar la ventana compartida existente, sin normalizar cada fase por separado. Mismo preprocesado en entrenamiento, validación e inferencia. Posibles aumentos geométricos posteriores pendientes de acuerdo, alineados entre fases y solo durante entrenamiento. |
+| D18 | Comparar BCE normal y ponderada cambiando solo la pérdida | Aprobado el 2026-09-27. Misma arquitectura, pesos iniciales, semillas/orden de muestreo, partición, preprocesado, optimizador, lote y presupuesto/reglas de parada; valores concretos pendientes. Entrenamientos independientes desde el mismo inicio, sin reutilizar pesos ya entrenados. pos_weight = N0/N1 por cortes del subconjunto de entrenamiento de cada fold, excluyendo validación y test. Mismas métricas por paciente sin ponderación adicional para favorecer una variante. |
+| D19 | Máximo 50 épocas y paciencia de 10 por ROC-AUC de validación por paciente | Aprobado el 2026-09-27. Validar cada época; mejora significa superar estrictamente la mejor AUC previa (sin margen mínimo adicional). Contar épocas consecutivas sin mejora y aplicar la parada a partir de la época 10. Conservar pesos de la mejor época; empate conserva la anterior y no reinicia la paciencia. Misma regla para ambas pérdidas, aunque terminen en épocas diferentes. Parar una ejecución no descarta automáticamente su arquitectura. |
+| D20 | Semilla inicial 42 y registro reproducible de experimentos | Aprobado el 2026-09-27. Misma semilla y pesos iniciales para comparar pérdidas en cada fold. Guardar al terminar cada época el último estado reanudable y conservar aparte la mejor versión por validación. Registrar configuración, métricas, época y equipo; incluir pesos, optimizador, estados aleatorios y scheduler/escalador si se usan, según ENTORNOS.md. Checkpoints fuera de Git; transferencia por pendrive según D25. No se garantiza identidad numérica entre NVIDIA y AMD. |
+| D21 | Evaluar calibración con gráfica de calibración y puntuación Brier por paciente | Aprobado el 2026-09-27. Usar las probabilidades agregadas por paciente y sus etiquetas. Inicialmente evaluar sin ajustar ni corregir probabilidades; Brier mide error probabilístico y no exclusivamente calibración. Revisar en validación interna y describir en la evaluación final del modelo cerrado, sin reajustar tras ver test. Gráfica en cinco intervalos de probabilidad, mostrando el número de pacientes por intervalo. |
+| D22 | Intervalos de confianza del 95 % mediante 2.000 remuestreos por paciente | Aprobado el 2026-09-27. Remuestrear pacientes con reemplazo y recalcular métricas sobre predicciones del modelo fijado, sin reentrenar; nunca remuestrear cortes como observaciones independientes. Describen incertidumbre muestral de las métricas, no probabilidad individual de acierto ni toda la variabilidad del entrenamiento. Mantener modelo y umbral fijos; límites percentiles 2,5 y 97,5 de 2.000 remuestras válidas. Repetir remuestras sin ambas clases. |
+| D23 | Elegir finalista por mayor media aritmética de ROC-AUC por paciente de los cinco folds | Aprobado el 2026-09-27. Mostrar los cinco resultados individuales y su variabilidad. En empate exacto, preferir menos parámetros; con la misma arquitectura, preferir BCE normal. Cada candidato incluye arquitectura y configuración de entrenamiento/pérdida. No interpretar pequeñas diferencias como superioridad concluyente. Este criterio selecciona configuración; el procedimiento para obtener los pesos finales se acuerda en D24. |
+| D24 | Una red final reentrenada desde cero con las 1.097 pacientes de train | Aprobado el 2026-09-27. Usar arquitectura/configuración ganadoras y duración fija igual a la mediana de las cinco épocas de mejor AUC de sus folds. Sin parada por validación en este reentrenamiento y sin usar test para elegir época. Si gana BCE ponderada, recalcular pos_weight con los cortes de todo train. Obtener el umbral de las predicciones de validación por paciente de los cinco folds y fijarlo antes de test; documentar que trasladarlo a una red reentrenada puede cambiar su comportamiento. No reajustar tras ver test. |
+| D25 | Transporte de checkpoints por pendrive y parada al final de época | Aprobado el 2026-09-27. Guardado automático cada época sin detener el entrenamiento; permitir solicitar parada tras completar y guardar la época, confirmando antes de apagar. Reanudar en la siguiente época desde el último checkpoint completo. Copiar archivos terminados y verificar SHA-256; trabajar en disco local en destino. Implementación y prueba de portabilidad pendientes, no realizadas en fase 2. |
 
 ## Diferencias entre fuentes que hay que recordar
 
@@ -76,6 +94,102 @@ No se ha diseñado la CNN, iniciado entrenamiento, elegido app ni preparado diap
   aclarar la licencia de cada material antes de publicar ejemplos o redistribuir datos.
 
 ## Registro de sesiones
+
+### 2026-09-27 — Publicación autorizada y relevo para fase 3
+
+Álvaro solicita commit y push para cerrar fase 2 y abrirá otro chat para fase 3.
+Se incluyen únicamente docs/PROTOCOLO_EXPERIMENTAL.md, docs/DECISIONES_Y_ESTADO.md
+y docs/HOJA_DE_RUTA.md. Revisado el diff y comprobado git diff --check.
+Esta entrada acompaña el commit autorizado; comprobar el push con Git.
+
+Para retomar: leer AGENTS.md, estado, hoja de ruta, entornos y protocolo.
+Fase 2 cerrada; fase 3 no iniciada. Álvaro debe proponer su arquitectura propia:
+acompañar el razonamiento y comprobar dimensiones antes de implementarla.
+No hay modelo, entrenamiento ni checkpoints; no reinstalar ni repetir auditoría.
+Optimizador, tasa de aprendizaje y lote se concretarán con el diseño.
+Universidad sigue pendiente de sincronización; licencia pendiente de aclarar.
+
+### 2026-09-27 — Acuerdos parciales del protocolo
+
+Álvaro acepta las propuestas sobre folds, ROC-AUC por paciente y media de cortes,
+tras explicarlas en lenguaje sencillo. Se aclaran paciente, corte, fases y fold -1
+para test. La consulta de samples.csv confirma pacientes/cortes por fold:
+0: 219/2186; 1: 219/2190; 2: 220/2192; 3: 220/2192; 4: 219/2185.
+
+Acepta umbral inicial 0,50 y revisión en épocas 5 y 10 sin descarte automático.
+La revisión sirve para valorar cómo aprende su futura arquitectura; no implica
+diseñarla ahora ni autoriza entrenamiento. No se interpreta esta aprobación como
+elección de un criterio definitivo de umbral, máximo de épocas o paciencia.
+
+Solo se actualiza documentación, conservando los cambios locales anteriores.
+Sin entrenamiento, instalación, commit ni push. Validación: git diff --check.
+Álvaro acepta después el preprocesado inicial D17 y comenzar sin aumentos de datos.
+No se autoriza con ello ejecutar la comparación ni introducir aumentos después
+automáticamente. Se propone abordar a continuación las condiciones comparables
+entre BCE normal y ponderada; su concreción sigue pendiente.
+
+Tras aclarar por qué ponderar no modifica etiquetas ni introduce información
+de validación/test, Álvaro aprueba las condiciones de comparación D18.
+La ponderación puede modificar sensibilidad, especificidad y calibración; no se
+presupone superioridad. No se fijan aún valores de hiperparámetros ni semillas.
+
+Álvaro aprueba máximo de 50 épocas y paciencia de 10 según D19, conservando el
+checkpoint de mejor AUC y el anterior en caso de empate. Se mantienen las
+revisiones de épocas 5 y 10. No se inicia entrenamiento.
+
+Álvaro acepta semilla inicial 42 y organización del registro/checkpoints D20.
+Solo cambios documentales locales, verificados con git diff --check; sin
+entrenamiento, commit ni push. Se conservan cambios locales previos.
+
+Álvaro aprueba elegir el umbral por máxima media de sensibilidad y especificidad
+(balanced accuracy) en validación interna por paciente y conservar la referencia
+0,50. No se calcula ningún umbral en esta sesión ni se evalúa test. El criterio
+queda acordado; su valor y detalles operativos se cerrarán antes del test.
+Actualización solo documental, comprobada con git diff --check; sin commit/push.
+
+Álvaro acepta evaluar calibración con gráfica y puntuación Brier, inicialmente
+sin corregir probabilidades (D21). No se han calculado resultados: no hay modelo
+entrenado. Cambios documentales locales comprobados con git diff --check.
+
+Álvaro acepta intervalos del 95 % con 2.000 remuestreos por paciente, sin volver
+a entrenar (D22). No se han calculado intervalos ni métricas del modelo.
+Solo se actualiza documentación local y se comprueba git diff --check.
+
+Álvaro acepta selección de finalistas por AUC media en cinco folds y desempates
+según D23. Sin resultados aún; no se selecciona ningún modelo ni se entrena.
+Se actualiza documentación local, conservando cambios previos; git diff --check.
+
+Álvaro aprueba el procedimiento D24: una red nueva con todo train y duración
+fija según la mediana de las mejores épocas de los cinco folds. El umbral procede
+de validación interna, con la limitación de transferirlo a una red reentrenada.
+Se registra el acuerdo; no se ejecuta entrenamiento ni se evalúa test.
+
+Álvaro aprueba los detalles de D16, D21 y D22: predicciones de validación reunidas, desempates del umbral, cinco intervalos de calibración e intervalos percentiles con modelo y umbral fijos. Se consolida el protocolo en docs/PROTOCOLO_EXPERIMENTAL.md. Sin entrenamiento, commit ni push; verificación documental con git diff --check.
+
+Álvaro elige pendrive y aprueba guardado/reanudación y parada al final de época
+(D25), tras explicar funcionamiento, duración y tamaños orientativos. Se cierra
+fase 2 con los acuerdos revisados sucesivamente en este chat y consolidados en
+PROTOCOLO_EXPERIMENTAL.md. La escritura segura y verificación de copias se
+documentan como detalles de implementación; no hay código ni pruebas de reanudación.
+Verificación documental: git diff --check. Sin entrenamiento, instalación, commit
+ni push. Próximo paso: diseño de arquitectura propia por Álvaro en fase 3.
+
+### 2026-09-25 — Inicio de fase 2
+
+Álvaro confirma la fase 1 terminada y publicada y solicita acordar el protocolo,
+sin iniciar entrenamiento. Leídos AGENTS.md, estado, hoja de ruta, entornos,
+GUIA.md y texto del enunciado del repositorio. Git inicialmente limpio en master,
+coincidente con la referencia local origin/master; no se consultó el remoto.
+Equipo actual: Windows, DESKTOP-OGMPFDM; la shell no indica un entorno Conda activo.
+Lectura del PDF con el runtime documental de Codex, sin ejecutar código del modelo,
+instalar dependencias ni repetir auditoría o pruebas GPU.
+
+Se abre la discusión de validación interna, métrica principal y agregación.
+Las recomendaciones del asistente permanecen como propuestas hasta respuesta
+de Álvaro. Pendientes también umbral, presupuesto, revisión/parada, preprocesado,
+calibración, incertidumbre y registro/checkpoints. Fase 2 no cerrada.
+Próximo paso: acordar estas reglas con Álvaro antes de diseñar y entrenar.
+Cambios documentales locales; sin commit ni push.
 
 ### 2026-09-24 — Preparación inicial en PC Casa
 
