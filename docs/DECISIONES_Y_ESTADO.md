@@ -111,6 +111,17 @@ Las fases 5–8 no se han iniciado; no se ha elegido app ni preparado diapositiv
 
 ## Registro de sesiones
 
+### 2026-10-01 — Revisión del notebook y publicación autorizada
+
+Álvaro solicita subir el notebook pendiente. Comparación estructural con HEAD:
+12 celdas, fuentes y metadatos idénticos; solo cambian salidas e índices de
+ejecución. Las salidas incluyen imágenes y se conservan en una copia completa
+con sufijo SHA-256 en reports/local/auditoria/01_auditoria_usuario_*.ipynb,
+verificada byte a byte. Notebook de notebooks/ restaurado a la versión idéntica
+sin salidas que ya está en Git; no se pierde código ni se publican imágenes.
+Se autoriza push del commit local f8a0567 y esta constancia documental. Confirmar
+publicación mediante resultado de Git; v2 sigue pendiente de ejecutar por Álvaro.
+
 ### 2026-10-01 — Organización del código y commit local autorizado
 
 Álvaro solicita ordenar los modelos y autoriza commit, confirmando que no ha
