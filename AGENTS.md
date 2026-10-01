@@ -19,6 +19,11 @@ del trabajo autorizado; no repitas como vigente un bloqueo ya resuelto.
 
 ## Forma de trabajar acordada con Álvaro
 
+- Los entrenamientos los ejecuta Álvaro. Preparar código, comandos y analizar
+  resultados, pero no iniciar entrenamientos ni pruebas de memorización por cuenta
+  del asistente. Las comprobaciones futuras no deben actualizar pesos sin petición
+  explícita del usuario; distinguirlas claramente de entrenamiento por épocas.
+
 - Explica qué propones y por qué. No tomes decisiones del proyecto por tu cuenta,
   no adelantes fases ni interpretes una pregunta como autorización para instalar.
 - Ejecuta el trabajo concreto que Álvaro ya haya autorizado, sin pedir de nuevo
@@ -35,8 +40,9 @@ del trabajo autorizado; no repitas como vigente un bloqueo ya resuelto.
 - CNN 2D propia, entrenada desde cero: Álvaro diseña la arquitectura. Ayuda a
   razonar y dibuja la arquitectura cuando él la haya definido. No sustituyas su
   diseño por una red de catálogo ni uses pesos preentrenados.
-- Álvaro quiere revisar el aprendizaje tras 5–10 épocas. El criterio concreto de
-  descarte sigue pendiente de acordar; no inventes un umbral o paciencia.
+- Revisar el aprendizaje en épocas 5 y 10 sin descarte automático de arquitectura.
+  Aplicar las reglas de parada ya acordadas en PROTOCOLO_EXPERIMENTAL.md;
+  distinguir detener una ejecución de descartar un diseño.
 - Las fases PRE/EARLY/LATE son canales temporales, no RGB. Evita introducir
   transformaciones de color o normalización ImageNet sin justificación y acuerdo.
 - Divide por paciente y respeta las particiones docentes. No uses test para elegir
@@ -59,8 +65,10 @@ No copies un entorno binario Windows a Linux ni paquetes CUDA al equipo AMD.
 un chat; primero consulta el estado y el alcance solicitado.
 
 Casa: Windows / RTX 3060 Ti 8 GB. Universidad: Ubuntu / RX 6700 XT 12 GB.
-El batch será configurable y se decidirá con la arquitectura; no hay uno elegido.
-No prometas reanudación bit a bit entre GPUs. Checkpoints y transporte pendientes.
+El batch es configurable; consultar la configuración vigente en los documentos
+de arquitectura y los checkpoints, sin asumir equivalencia al cambiarlo.
+No prometas reanudación bit a bit entre GPUs. Guardado y transporte acordados en
+PROTOCOLO_EXPERIMENTAL.md; consultar pruebas actuales en DECISIONES_Y_ESTADO.md.
 
 Para comprobaciones autorizadas dentro de cancer, desde la raíz:
 

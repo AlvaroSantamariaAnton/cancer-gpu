@@ -33,9 +33,9 @@ No es detección de cáncer, estimación de supervivencia ni recomendación tera
 |---|---|---|
 | 0. Preparación técnica | Entorno y datos operativos | Casa verificado; universidad parcialmente verificada |
 | 1. Auditoría y visualización | Entender datos, clases, cohortes y posibles sesgos | Terminada; notebook ejecutado y revisado con Álvaro |
-| 2. Protocolo experimental | Reglas de entrenamiento y evaluación acordadas | Completada; protocolo acordado, sin entrenamiento |
-| 3. Arquitectura propia | Diseño de Álvaro, implementación y diagrama | Aprobada como fase, no iniciada |
-| 4. Entrenamiento y comparación | Experimentos trazables, normal frente a ponderada | Aprobada como fase, no iniciada |
+| 2. Protocolo experimental | Reglas de entrenamiento y evaluación acordadas | Completada y publicada según confirmación de Álvaro; sin entrenamiento |
+| 3. Arquitectura propia | Diseño de Álvaro, implementación y diagrama | CNN v1 implementada y diagrama guardado; comprobaciones técnicas superadas; cierre conjunto pendiente |
+| 4. Entrenamiento y comparación | Experimentos trazables, normal frente a ponderada | Tres pruebas v1 y memorización completadas; v2 de menor anchura aprobada, pendiente de entrenar |
 | 5. Cierre del modelo y test | Modelo fijado y evaluación final por paciente | Aprobada como fase, no iniciada |
 | 6. Aplicación desplegada | Inferencia coherente y URL funcional | Aprobada como fase, no iniciada |
 | 7. Informe y entrega reproducible | Código, pesos, configuración y evidencias | Aprobada como fase, no iniciada |
@@ -145,6 +145,13 @@ acordadas mediante revisión sucesiva con Álvaro.
 transporte definidas antes de comparar candidatos. Publicación autorizada por Álvaro.
 
 ## 3. Diseñar e implementar la CNN con Álvaro
+
+Iniciada el 2026-09-27 por petición de Álvaro. Diseño inicial acordado mediante
+preguntas sucesivas y dibujado en el chat el 2026-09-30; véase el registro de estado.
+Diagrama horizontal guardado en [ARQUITECTURA_ACTUAL.md](ARQUITECTURA_ACTUAL.md).
+Implementada el 2026-09-30; forward, pérdida, gradientes, actualización y lote 32
+en RTX 3060 Ti comprobados. Memorización completada por Álvaro: 8/8 aciertos
+y BCE final 0,000715 en 200 pasos. Pendiente cierre conjunto.
 
 Álvaro propone los bloques y decisiones; el asistente explica alternativas y
 comprueba dimensiones, parámetros y memoria. Solo después se implementa el diseño

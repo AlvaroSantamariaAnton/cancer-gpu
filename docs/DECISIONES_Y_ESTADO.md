@@ -8,15 +8,31 @@ Responsable de arquitectura y decisiones académicas: Álvaro Santamaría Antón
 Fase 1 terminada: auditoría, visualizaciones y revisión con Álvaro completadas.
 Fase 1 publicada, según confirmación de Álvaro al iniciar esta sesión.
 Fase 2 completada: protocolo experimental acordado, sin entrenamiento.
-Documento consolidado: docs/PROTOCOLO_EXPERIMENTAL.md. Commit y push autorizados
-por Álvaro para cerrar la fase; verificar publicación mediante Git.
-Próximo paso: fase 3, diseño de la arquitectura propia con Álvaro en un nuevo chat.
+Documento consolidado: docs/PROTOCOLO_EXPERIMENTAL.md. Fase 2 publicada según
+confirmación de Álvaro en este chat; HEAD y referencia local origin/master coinciden
+en 3bd8547. Consulta directa al remoto no disponible por fallo de conexión.
+Fase 3 en curso: CNN v1 implementada; salida, gradientes, actualización y lote 32
+comprobados en RTX 3060 Ti. Memorización de ocho cortes comprobada por Álvaro;
+cierre conjunto de fase 3 pendiente.
+Referencia vigente y diagrama horizontal: [ARQUITECTURA_ACTUAL.md](ARQUITECTURA_ACTUAL.md).
 El usuario resolvió el bloqueo de SciPy desactivando Smart App Control.
 Casa actualizado y verificado con PyTorch 2.14.0+cu126; sincronización
 completa de universidad pendiente de su próxima visita.
 Hoja de ruta aprobada por Álvaro el 2026-09-25 en docs/HOJA_DE_RUTA.md.
-Las fases 3–8 no se han iniciado; las decisiones técnicas abiertas siguen pendientes.
-No se ha diseñado la CNN, iniciado entrenamiento, elegido app ni preparado diapositivas.
+Fase 4 en curso: primera comparación CNN v1 en fold 0 terminada por paciencia.
+Reanudación en el mismo equipo ejecutada correctamente por Álvaro; portabilidad
+entre GPUs aún no probada. Normal: parada en época 36, mejor AUC 0,602520
+en época 26 (VP=15, VN=131, FP=24, FN=49 a umbral 0,50).
+Ponderada: parada en época 11, mejor AUC 0,561694 en época 1
+(VP=0, VN=155, FP=0, FN=64 a umbral 0,50).
+Normal obtiene mayor mejor AUC en este fold; no es selección final en cinco folds.
+Diagnóstico de memorización ejecutado por Álvaro: 200 pasos, 8/8 aciertos,
+BCE 0,711010 → 0,000715. No demuestra generalización ni valida todo el pipeline.
+Experimento con Adam weight_decay=0,0001 y BCE normal terminado por paciencia
+en época 11. Mejor AUC 0,561391 (época 1), inferior a referencia normal sin
+penalización (0,602520) en este fold. Siguiente experimento aprobado: CNN v2
+con filtros 8/16/32, BCE normal, Adam 0,001 sin penalización; pendiente de Álvaro.
+Las fases 5–8 no se han iniciado; no se ha elegido app ni preparado diapositivas.
 
 ### Hecho
 
@@ -35,7 +51,7 @@ No se ha diseñado la CNN, iniciado entrenamiento, elegido app ni preparado diap
 
 ### En curso / pendiente de verificar
 
-- Fase 2 completada mediante acuerdos sucesivos con Álvaro. Publicación autorizada;
+- Fase 2 completada y publicada según confirmación de Álvaro;
   implementación y pruebas de checkpoints pendientes de las fases de código.
 - En la próxima visita: instalar dependencias comunes en universidad, actualizar
   NumPy de 2.5.2 a 2.5.3 y pasar carga/métricas y diagnóstico GPU.
@@ -94,6 +110,307 @@ No se ha diseñado la CNN, iniciado entrenamiento, elegido app ni preparado diap
   aclarar la licencia de cada material antes de publicar ejemplos o redistribuir datos.
 
 ## Registro de sesiones
+
+### 2026-10-01 — Organización del código y commit local autorizado
+
+Álvaro solicita ordenar los modelos y autoriza commit, confirmando que no ha
+ejecutado v2. Se trasladan modelo.py y modelo_v2.py a models/cnn_v1.py y
+models/cnn_v2.py, con paquete models. Actualizados imports, rutas de huellas y
+referencias vigentes. Utilidades docentes originales permanecen en raíz para
+mantener compatibilidad con guía. Scripts ejecutables permanecen en scripts/.
+Resultados locales y pesos no se mueven ni modifican. Checkpoints antiguos
+guardan sus hashes históricos; no se relaja validación para reanudar con fuentes
+distintas. Parámetros state_dict compatibles con las clases trasladadas.
+Verificación sin entrenamiento: imports, salida CPU en modo inferencia para v1/v2,
+conteo de parámetros y carga estricta de mejores pesos v1 existentes. Ayuda CLI
+y git diff --check. Sin backward, optimizador ni entrenamiento.
+Commit autorizado incluye modelos, scripts, diagramas, guías y decisiones de esta
+sesión. Se excluye el notebook modificado previamente por el usuario. Dataset,
+runs y reports/local permanecen ignorados. No se autoriza ni ejecuta push.
+Próximo paso: Álvaro inicia v2 con el mismo comando documentado cuando decida.
+
+### 2026-10-01 — Decisiones de diseño y preparación de CNN v2
+
+Álvaro solicita conservar decisiones y avances en el repositorio y acepta preparar
+v2 con menos filtros. Rechaza cambiar por ahora la tasa de aprendizaje: se mantiene
+0,001. Se discutió añadir una convolución al tercer bloque, pero no se aprobó ni
+implementó. Hipótesis aprobada: reducir capacidad ante el patrón de sobreajuste,
+manteniendo una Conv3x3/ReLU/MaxPool por bloque, con 8/16/32 frente a 16/32/64.
+Salida lineal adaptada 32→1; total 6.065 parámetros frente a 23.649. Menor capacidad
+no garantiza mejor generalización y puede perder información útil.
+Se conserva modelo.py/CNNV1; nueva clase CNNV2 en modelo_v2.py. Selector
+--arquitectura v2 para nuevas ejecuciones; reanudación usa arquitectura guardada.
+Arquitectura actual pasa a candidata v2, sin modelo final; referencia anterior
+conservada en ARQUITECTURA_V1.md. Resultados y pesos anteriores no se modifican.
+Los hashes del entrenador cambian y se mantienen controles estrictos; ejecuciones
+anteriores ya terminadas. Comandos v2 separados, entrenamiento a cargo de Álvaro.
+Comprobación CPU de formas, conteo y salida finita con datos ficticios, sin backward
+ni paso de optimizador. Prueba real GPU y entrenamiento pendientes. git diff --check.
+
+Contexto docente aportado por Álvaro: profesor considera AUC >0,70 buena y >0,80
+muy difícil. Álvaro propone aspirar a ≥0,70; objetivo orientativo, no nuevo requisito
+literal del enunciado ni criterio automático de selección/descarte. Se mantiene
+confirmación en cinco folds y test final reservado. Se aclaró que bajar train loss
+es esperado: preocupa su divergencia con validación, no la bajada por sí sola.
+No se publica nada: cambios locales pendientes de revisar y acordar commit/push.
+
+### 2026-10-01 — Cierre de prueba con weight_decay=0,0001
+
+Álvaro completa época 11: train_loss=0,5861, val_loss=0,6065, AUC=0,5283.
+Diez épocas sin superar el máximo de época 1 (0,561391): parada correcta.
+Salida aportada contrastada con última fila de metricas.csv. Comparación de mejores
+AUC en fold 0: normal 0,602520 (época 26, parada 36); ponderada 0,561694
+(época 1, parada 11); normal con penalización 0,561391 (época 1, parada 11).
+No se adopta la penalización como mejora ni se concluye que todo weight decay
+sea perjudicial. Mantener la referencia inicial y acordar siguiente hipótesis;
+sin ganador final, otros folds ni evaluación test. No se cambia código ni se
+ejecuta entrenamiento. Documentación local, git diff --check; sin commit/push.
+
+### 2026-10-01 — Revisión de diez épocas con penalización
+
+Álvaro reanuda hasta época 10; contrastado metricas.csv. Época 10:
+train_loss=0,588610, val_loss=0,616527, AUC=0,508165; VP=5, VN=152, FP=3,
+FN=59, sensibilidad 7,8125 %, especificidad 98,0645 %, accuracy 71,6895 %.
+Mejor AUC sigue en época 1 (0,561391), nueve épocas sin superarla.
+Referencia sin penalización en época 10: AUC=0,552016, val_loss=0,616925.
+La penalización no muestra mejora sostenida de discriminación; mayor accuracy
+no implica mejor modelo. No se concluye que toda regularización sea inútil ni
+se cambia arquitectura. Propuesta: completar la ejecución con paciencia 10;
+si época 11 no supera 0,561391 se detendrá, y si mejora reiniciará contador.
+Solo lectura y documentación; sin entrenamiento, cambios de código ni commit/push.
+
+### 2026-10-01 — Revisión de cinco épocas con penalización
+
+Leída salida del usuario y contrastados config.json y metricas.csv de
+cnn-v1-normal-wd1e4-fold0. Confirmado weight_decay=0,0001; resto de configuración
+igual a referencia. Época 5: train_loss=0,597956, val_loss=0,605800, AUC=0,528125,
+Brier=0,207499. En las cinco épocas predice todas negativas a umbral 0,50:
+VP=0, FN=64, VN=155, FP=0. Mejor AUC=0,561391 en época 1; paciencia 4.
+Referencia sin penalización en época 5: train_loss=0,593940, val_loss=0,608272,
+AUC=0,530645. Ligera mejora de pérdida de validación sin mejora clara de AUC;
+todavía no concluye eficacia de regularización. Comparación provisional a igual
+número de épocas, sin confrontarla como definitiva con el máximo a 36 épocas.
+Continuar revisión acordada hasta época 10 mediante ejecución de Álvaro.
+No se ejecuta entrenamiento ni se modifica código/checkpoints. Documentación
+local revisada con git diff --check, sin commit ni push.
+
+### 2026-10-01 — Penalización de pesos aprobada y código preparado
+
+Álvaro autoriza los cambios y solicita comandos; ejecutará personalmente.
+Se añade --weight-decay a scripts/entrenar.py, por defecto cero para ejecuciones
+nuevas. Experimento aprobado: 0,0001 con Adam (no AdamW), BCE normal, misma red,
+semilla, orden, fold 0, lote 32, tasa 0,001 y parada. Penaliza todos los parámetros,
+incluidos sesgos; no se añade penalización manual a las pérdidas BCE registradas.
+El valor se guarda en config y checkpoint; al reanudar se restaura y se rechaza
+especificar otra penalización. Se rechazan negativos, NaN e infinito.
+Nueva carpeta prevista: runs/cnn-v1-normal-wd1e4-fold0/. Se conservan resultados
+anteriores. La huella del script cambia: no se relaja el control de hashes; las
+ejecuciones anteriores ya finalizaron y no se deben prolongar. Modelo sin cambios.
+Verificado con pruebas de argumentos y sintaxis sin importar torch, cargar datos
+ni actualizar pesos. Integración numérica pendiente de ejecución por Álvaro.
+Comandos documentados: pausa en 5, reanudar hasta 10, luego completar según reglas,
+con revisión entre etapas. No se ha elegido nueva arquitectura ni pérdida final.
+git diff --check. Sin entrenamiento, commit ni push.
+
+### 2026-09-30 — Memorización ejecutada por Álvaro
+
+Leída salida del usuario y contrastados resumen.json y predicciones_finales.csv
+en runs/cnn-v1-memorizacion/. Completados 200 pasos, sin interrupción: BCE de
+0,711010158 a 0,000714513, 8/8 al final y ya en el paso 60 mostrado en consola.
+Probabilidades finales <0,002 para los cuatro negativos y >0,998 para los cuatro
+positivos. Son las mismas ocho muestras usadas para ajustar pesos: no hay
+evaluación de generalización ni probabilidades calibradas demostradas.
+Evidencia de capacidad para ajustar estos ejemplos y de optimización operativa;
+no descarta errores en otros componentes ni demuestra que toda la arquitectura
+sea adecuada para el problema. Los experimentos completos siguen mostrando
+generalización limitada y un patrón de sobreajuste.
+No se cambian capas, tasa ni regularización automáticamente. Próximo experimento
+a acordar con Álvaro, cambiando un factor y conservando v1 como referencia.
+Solo lectura y documentación; git diff --check. Sin entrenar, commit ni push.
+
+### 2026-09-30 — Prueba de memorización preparada, sin ejecutar
+
+Álvaro pide continuar con el diagnóstico propuesto. Se crea
+scripts/probar_memorizacion.py y docs/MEMORIZACION.md: ocho cortes de ocho pacientes,
+cuatro por clase, selección reproducible solo train folds 1–4. CNN v1 desde cero,
+BCE normal y Adam 0,001; presupuesto diagnóstico inicial 200 pasos configurable.
+Es un detalle operativo del diagnóstico, no cambio del protocolo ni nuevo umbral
+automático de descarte. Registra BCE/aciertos en paso cero y después de cada paso,
+selección, configuración, predicciones finales y pesos diagnósticos en carpeta
+separada runs/cnn-v1-memorizacion/. No modifica experimentos ni sus fuentes.
+Verificaciones sin entrenamiento: sintaxis, --help y selección determinista de
+ocho pacientes distintos con cuatro por clase, sin validación/test. No se importa
+torch en las verificaciones ni se cargan imágenes. Prueba numérica pendiente.
+Próximo paso: Álvaro ejecuta el comando y revisamos resultados; no se ejecuta
+ningún entrenamiento por el asistente. git diff --check; sin commit ni push.
+
+### 2026-09-30 — Primera comparación completada en fold 0
+
+Leída salida adjunta por Álvaro y ambos metricas.csv. Ponderada termina en época
+11, diez sin superar AUC 0,561694 de época 1. Normal termina en época 36, diez
+sin superar AUC 0,602520 de época 26. Las distintas duraciones cumplen la misma
+regla de parada. Comparar mejores épocas, no mezclar métricas del último estado
+con el checkpoint seleccionado. Normal época 26: sensibilidad 23,4375 %,
+especificidad 84,5161 %, accuracy 66,6667 %; ponderada época 1: 0 %, 100 %,
+70,7763 %. La ponderada llegó a mayor sensibilidad en otras épocas, pero esas no
+son su mejor checkpoint por AUC. Mayor accuracy no la convierte en ganadora.
+Normal: pérdida train inicial/final 0,6100/0,4340 y val 0,6139/0,7426;
+ponderada: train 0,9827/0,8934 y val 0,9782/1,0475. Patrón de sobreajuste;
+la normal sí mejora discriminación respecto al inicio, pero de forma limitada.
+No se declara fase 4 completa ni ganador final: un fold, una semilla, sin test.
+Propuesta pendiente de acuerdo: preparar diagnóstico de memorización pequeño
+para que lo ejecute Álvaro antes de atribuir resultados a la arquitectura.
+Solo lectura y documentación; no ejecución de red ni modificación de código.
+git diff --check; sin commit ni push.
+
+### 2026-09-30 — Ambas pérdidas revisadas hasta época 10
+
+Álvaro reanuda ponderada y aporta salida hasta época 10. Se verifica metricas.csv:
+train_loss=0,903592, val_loss=1,007582, AUC=0,546270. Mejor AUC=0,561694 en
+época 1; nueve épocas sin mejora. Sensibilidad 45,3125 %, especificidad 55,4839 %;
+VP=29, FN=35, VN=86, FP=69. Discriminación baja en ambas variantes, sin ganadora
+concluyente. La separación creciente train/validación es compatible con sobreajuste,
+no justifica por sí sola cambiar arquitectura ni demuestra un error de código.
+Propuesta: completar ambas ejecuciones con máximo 50/paciencia 10 acordados;
+ponderada pararía en época 11 si no supera su mejor AUC, pero puede continuar si
+mejora. Normal tiene contador cero en época 10. No dar por terminada ninguna ni
+descartar arquitectura automáticamente. Después revisar diagnóstico, incluida la
+prueba de memorización pendiente, antes de proponer cambios. No se usa test.
+Solo lectura de resultados y actualización documental; git diff --check correcto.
+Sin entrenamiento del asistente, cambios de código, commit ni push.
+
+### 2026-09-30 — Primeras cinco épocas de BCE ponderada
+
+Álvaro acepta comparar ambas pérdidas y ejecuta ponderada hasta época 5.
+Revisados CSV de ambas variantes y configuración ponderada: pos_weight=2,4002329193,
+misma arquitectura, fold, semilla, lote, tasa y hashes de fuentes registrados.
+AUC ponderada: 0,561694; 0,481048; 0,556653; 0,527419; 0,544859.
+Mejor época 1; contador de paciencia 4. En época 5 sensibilidad 82,8125 %,
+especificidad 25,1613 %, accuracy 42,0091 %: VP=53, FN=11, VN=39, FP=116.
+La normal en época 5 tenía VP=0, FN=64, VN=155, FP=0, AUC=0,530645.
+La ponderación cambia mucho la clasificación a umbral 0,50, sin evidencia aún
+de mejora clara de discriminación; no declarar ganadora por sensibilidad sola.
+Oscilaciones: ponderada época 1 predice todo negativo y época 2 todo positivo.
+No comparar directamente valores de pérdida normal y ponderada.
+Siguiente paso ya planteado: Álvaro reanuda ponderada hasta época 10 y revisión
+conjunta. No se cambia código, umbral ni arquitectura; no se usa test.
+Actualización documental, git diff --check; sin ejecutar entrenamiento ni commit/push.
+
+### 2026-09-30 — Revisión de época 10 y reanudación por Álvaro
+
+Álvaro ejecuta reanudación desde época 5 hasta 10; salida y metricas.csv confirman
+continuidad del historial, configuración y contador de paciencia. Esto verifica
+el recorrido de reanudación en el mismo equipo, no identidad frente a ejecución
+ininterrumpida ni portabilidad NVIDIA/AMD. El asistente no ejecuta entrenamiento.
+AUC época 10=0,552016 frente a anterior máximo 0,551008: mejora estricta de
+0,001008, por lo que reinicia correctamente paciencia. No demuestra mejora relevante.
+Pérdida train 0,573377, validación 0,616925; separación creciente y repunte de
+validación tras época 7 compatibles con posible sobreajuste, sin diagnóstico definitivo.
+Época 10: VP=1, FN=63, VN=147, FP=8; sensibilidad 1,5625 %, especificidad
+94,8387 %, accuracy 67,5799 % con umbral 0,50. No confundir menor accuracy con
+criterio de selección ni cambiar umbral para disimular la AUC baja.
+Propuesta para decidir con Álvaro: comparar ahora BCE ponderada desde cero hasta
+los mismos puntos de revisión, manteniendo arquitectura/configuración. No es aún
+una decisión aprobada ni descarte de la normal; ambas conservan sus reglas de parada.
+Actualización documental local; sin cambios de código, commit ni push.
+
+### 2026-09-30 — Revisión de las primeras cinco épocas ejecutadas por Álvaro
+
+Álvaro aporta salida de cnn-v1-normal-fold0. Se leen metricas.csv, config.json y
+cabecera de validacion_ultima.csv del resultado local, sin ejecutar la red.
+Pérdida train 0,609997 → 0,593940; validación 0,613878 → 0,608272.
+AUC por paciente: 0,551008; 0,525202; 0,537097; 0,524597; 0,530645.
+En todas las épocas: VP=0, VN=155, FP=0, FN=64; sensibilidad 0, especificidad 1,
+accuracy 0,707763 a umbral 0,50. Predice únicamente no pCR a ese umbral; AUC baja
+y sin mejora sostenida, sin concluir ausencia absoluta de aprendizaje ni fallo
+de arquitectura. Mejor época 1; contador de paciencia 4 al terminar época 5.
+La ejecución del usuario verifica el bucle por cinco épocas y el guardado según
+su salida; reanudación aún pendiente de comprobar. Pico PyTorch ~472,75 MiB.
+Propuesta: continuar sin cambios hasta época 10 mediante reanudación ejecutada
+por Álvaro, conforme a los puntos de revisión. No ajustar umbral ni usar test.
+No se modifica código, para conservar los hashes del checkpoint. Actualización
+documental local, git diff --check; sin entrenamiento por el asistente ni commit/push.
+
+### 2026-09-30 — Código de entrenamiento preparado para ejecución por Álvaro
+
+Álvaro aclara que ejecutará personalmente todos los entrenamientos. Se registra
+la preferencia en AGENTS.md. Autoriza preparar código, no ejecutarlo.
+Se añade scripts/entrenar.py y docs/ENTRENAMIENTO.md: Adam y configuración acordada,
+validación por paciente cada época, dos pérdidas con mismo inicio/orden, pausa
+por --hasta-epoca para revisar 5 y 10, paciencia y máximo 50. Guardado atómico
+de último estado completo y mejor modelo; Ctrl+C solicita parada al final de época.
+Reanudación restaura configuración, optimizador, paciencia, RNG e historial;
+verifica hashes de código y metadatos. Copia de mejores pesos dentro del último
+checkpoint para conservarlos al transportar. Datos y resultados permanecen locales.
+No se ejecuta entrenamiento, forward, backward ni prueba de memorización en esta
+sesión. Solo sintaxis, --help, pruebas de lógica de parada y escritura atómica
+sin importar torch. Integración real del bucle y reanudación entre GPUs pendientes.
+Próximo paso: Álvaro lanza cuando decida y revisamos sus resultados. El comando
+documentado pausa en época 5; no implica que esa ejecución ya se haya realizado.
+No se implementa evaluación test ni se declara completada fase 4. Sin commit/push.
+
+### 2026-09-30 — Implementación y comprobaciones técnicas de CNN v1
+
+Álvaro autoriza continuar con implementación y primeras tres comprobaciones,
+tras aclarar que dos etapas no significa dos épocas. Se crea modelo.py y el
+diagnóstico reproducible scripts/comprobar_modelo.py. Inicialización concretada
+como Kaiming normal fan_in/ReLU y Xavier uniforme gain=1; sesgos cero.
+Ejecutado con conda run -n cancer en DESKTOP-OGMPFDM, torch 2.14.0+cu126,
+RTX 3060 Ti. Sin instalar ni sincronizar dependencias.
+Resultado: salida (32,1), 23.649 parámetros, dimensiones de bloques correctas,
+gradientes y pesos finitos, pesos actualizados en todas las capas e inferencia
+repetida idéntica en el mismo dispositivo con lote 1. Paso sintético y pasos
+reales independientes con BCE normal/ponderada correctos. pos_weight=2,4002329193
+calculado solo con train folds 1–4. No se usan imágenes de validación ni test.
+Lote real 32, float32 sin AMP: pico asignado 472,565 MiB, reservado 856 MiB
+por PyTorch. La prueba no mide toda la VRAM del proceso ni estabilidad por épocas.
+Informe ignorado en reports/local/comprobacion_modelo.json; pesos descartados.
+Sin entrenamiento por épocas ni métricas predictivas. Pendiente proponer y
+concretar prueba de memorización pequeña antes de experimentos de fase 4.
+Cambios locales conservados, incluido notebook previo; git diff --check correcto.
+Sin commit ni push.
+
+### 2026-09-30 — Referencia horizontal persistente de la CNN
+
+Álvaro solicita un dibujo horizontal y guardarlo como referencia de la red vigente.
+Se crea docs/ARQUITECTURA_ACTUAL.md con diagrama Mermaid horizontal, dimensiones,
+conteo de parámetros y configuración acordada, identificado como CNN v1 diseñada,
+todavía no implementada ni entrenada. Enlazado desde README y estado; mantener
+la referencia al cambiar el diseño con acuerdo de Álvaro. Se actualiza README,
+que aún apuntaba al inicio de fase 2. No se modifica el notebook local existente.
+Verificación: revisión de dimensiones y parámetros, git diff --check.
+Pendientes implementación y pruebas funcionales/memoria. Sin commit ni push.
+
+### 2026-09-30 — Primera arquitectura acordada y esquema
+
+Álvaro solicita diseñar mediante preguntas de una en una y aprueba sucesivamente:
+tres bloques, una convolución 3x3 por bloque, canales 16/32/64, stride 1,
+padding 1, ReLU y MaxPool 2x2 con stride 2 en cada bloque. Entrada (3,256,256);
+salidas de bloques (16,128,128), (32,64,64), (64,32,32). Promedio global espacial
+y capa lineal 64 a 1 logit. Sin dropout ni BatchNorm. Kaiming en convoluciones,
+Xavier en la salida y sesgos cero; variantes concretas de inicialización pendientes
+de documentar al implementar. Con sesgos, el diseño tiene 23.649 parámetros.
+Adam, tasa base fija 0,001, sin scheduler, weight_decay=0. Lote inicial 32 para
+probar memoria, no validado todavía. Se mantienen las reglas de fase 2.
+El usuario solicita ver el dibujo: esquema Mermaid en el chat con dimensiones,
+separando red y conversión posterior a probabilidad. No se implementa ni entrena.
+Pendientes: implementación, diagrama persistente y pruebas funcionales/memoria.
+Se conserva el cambio local existente en notebooks/01_auditoria_datos.ipynb.
+Revisión documental mediante git diff --check; sin commit ni push.
+
+### 2026-09-27 — Inicio de fase 3: diseño conjunto
+
+Álvaro confirma fase 2 terminada y publicada y solicita diseñar con él la CNN.
+Leídos AGENTS.md, estado, hoja de ruta, entornos, protocolo, guía y texto del
+enunciado del repositorio. Git inicialmente limpio en master, HEAD 3bd8547,
+coincidente con origin/master local. Consulta remota fallida por conexión.
+Equipo: Windows, DESKTOP-OGMPFDM, shell en Conda base; consulta de GPU mediante
+CIM denegada. No se ejecutan diagnósticos de entrenamiento ni instalaciones.
+Se actualiza la continuidad y las referencias antiguas de AGENTS a parada y
+transporte, ya acordados en fase 2. Revisión documental con git diff --check.
+Pendiente: propuesta inicial de bloques por Álvaro; después razonar dimensiones,
+capacidad y regularización antes de implementar y dibujar. Ninguna arquitectura
+elegida ni entrenamiento realizado. Cambios solo locales, sin commit ni push.
 
 ### 2026-09-27 — Publicación autorizada y relevo para fase 3
 
